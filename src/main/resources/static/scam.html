@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#E8832A" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>Check a message · Sameepyam</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="/">← Back</a>
+    <h1>Check a message</h1>
+    <p class="tagline">Paste a message you're unsure about. We'll tell you if it looks safe.</p>
+
+    <label for="text">The message</label>
+    <div class="input-row">
+      <textarea id="text" placeholder="Paste the message here…"></textarea>
+      <button id="mic" class="btn mic" type="button" title="Speak instead of typing" aria-label="Record voice">🎤</button>
+    </div>
+    <div id="voiceStatus" class="status"></div>
+
+    <button id="check" class="btn" type="button">Check this message</button>
+
+    <div id="status" class="status hidden"></div>
+    <div id="result" class="result hidden"></div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    const textEl = document.getElementById("text");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+    const checkBtn = document.getElementById("check");
+
+    SameepyamVoice.attach(document.getElementById("mic"), textEl, document.getElementById("voiceStatus"));
+
+    const RISK_LABEL = { SAFE: "Looks safe ✓", SUSPICIOUS: "Be careful", LIKELY_SCAM: "Likely a scam ✗" };
+
+    checkBtn.addEventListener("click", async () => {
+      const text = textEl.value.trim();
+      Sameepyam.hide(resultEl);
+      if (!text) {
+        Sameepyam.renderError(resultEl, "Please paste a message first, then tap Check.");
+        return;
+      }
+      checkBtn.disabled = true;
+      statusEl.innerHTML = `<div class="loading"><span class="spinner"></span> Checking your message…</div>`;
+      Sameepyam.show(statusEl);
+      try {
+        const v = await Sameepyam.postJson("/api/scam-check", { text });
+        Sameepyam.hide(statusEl);
+        renderVerdict(v);
+      } catch {
+        Sameepyam.hide(statusEl);
+        Sameepyam.renderError(resultEl, "Please try checking the message again in a moment.");
+      } finally {
+        checkBtn.disabled = false;
+      }
+    });
+
+    function renderVerdict(v) {
+      const flags = (v.redFlags || []).map((f) => `<li>${Sameepyam.escapeHtml(f)}</li>`).join("");
+      resultEl.innerHTML =
+        `<div class="risk-banner risk-${Sameepyam.escapeHtml(v.riskLevel)}">${RISK_LABEL[v.riskLevel] || v.riskLevel}</div>` +
+        `<div class="card">` +
+          `<div class="field"><div class="field-label">Why</div><div class="field-value">${Sameepyam.escapeHtml(v.reason)}</div></div>` +
+          (flags ? `<div class="field"><div class="field-label">Things to notice</div><ul class="flags">${flags}</ul></div>` : "") +
+          `<div class="field"><div class="field-label">What to do</div><div class="field-value">${Sameepyam.escapeHtml(v.nextSteps)}</div></div>` +
+        `</div>`;
+      Sameepyam.show(resultEl);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: sameepyam
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.2
+      audio:
+        transcription:
+          options:
+            model: whisper-1
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080

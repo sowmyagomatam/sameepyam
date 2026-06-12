@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#E8832A" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>Explain a letter · Sameepyam</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="/">← Back</a>
+    <h1>Explain a letter</h1>
+    <p class="tagline">Upload a letter or document. We'll explain what it means, simply.</p>
+
+    <label for="file">Choose a PDF or a photo of the letter</label>
+    <input id="file" type="file" accept="application/pdf,image/*" />
+
+    <button id="explain" class="btn" type="button">Explain this letter</button>
+
+    <div id="status" class="status hidden"></div>
+    <div id="result" class="result hidden"></div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    const fileEl = document.getElementById("file");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+    const explainBtn = document.getElementById("explain");
+
+    explainBtn.addEventListener("click", async () => {
+      Sameepyam.hide(resultEl);
+      const file = fileEl.files[0];
+      if (!file) {
+        Sameepyam.renderError(resultEl, "Please choose a file first, then tap Explain.");
+        return;
+      }
+      explainBtn.disabled = true;
+      statusEl.innerHTML = `<div class="loading"><span class="spinner"></span> Reading your letter…</div>`;
+      Sameepyam.show(statusEl);
+      try {
+        const fd = new FormData();
+        fd.append("file", file);
+        const e = await Sameepyam.postForm("/api/explain", fd);
+        Sameepyam.hide(statusEl);
+        renderExplanation(e);
+      } catch {
+        Sameepyam.hide(statusEl);
+        Sameepyam.renderError(resultEl, "Please try uploading the letter again in a moment.");
+      } finally {
+        explainBtn.disabled = false;
+      }
+    });
+
+    function field(label, value) {
+      if (!value) return "";
+      return `<div class="field"><div class="field-label">${label}</div><div class="field-value">${Sameepyam.escapeHtml(value)}</div></div>`;
+    }
+
+    function renderExplanation(e) {
+      resultEl.innerHTML =
+        `<div class="card">` +
+          field("What it is", e.whatItIs) +
+          field("What they want", e.whatTheyWant) +
+          field("What to do", e.whatToDo) +
+          field("By when", e.byWhen) +
+        `</div>`;
+      Sameepyam.show(resultEl);
+    }
+  </script>
+</body>
+</html>

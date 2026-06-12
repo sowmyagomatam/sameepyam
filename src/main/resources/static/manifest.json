@@ -1,0 +1,13 @@
+{
+  "name": "Sameepyam",
+  "short_name": "Sameepyam",
+  "description": "A trusted helper for everyday digital tasks — check messages, explain letters.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFF8F0",
+  "theme_color": "#E8832A",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

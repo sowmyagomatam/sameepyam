@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#E8832A" />
+  <link rel="manifest" href="/manifest.json" />
+  <title>Write a message · Sameepyam</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <main class="page">
+    <a class="back" href="/">← Back</a>
+    <h1>Write a message</h1>
+    <p class="tagline">Tell us what you want to say. We'll write it clearly for you.</p>
+
+    <label for="lang">Language</label>
+    <select id="lang">
+      <option>English</option>
+      <option>Tamil</option>
+      <option>Telugu</option>
+      <option>Kannada</option>
+      <option>Malayalam</option>
+    </select>
+
+    <label for="intent">What do you want to say?</label>
+    <div class="input-row">
+      <textarea id="intent" placeholder="e.g. Tell my doctor I cannot come on Monday and ask for another day"></textarea>
+      <button id="mic" class="btn mic" type="button" title="Speak instead of typing" aria-label="Record voice">🎤</button>
+    </div>
+    <div id="voiceStatus" class="status"></div>
+
+    <button id="compose" class="btn" type="button">Write my message</button>
+
+    <div id="status" class="status hidden"></div>
+    <div id="result" class="result hidden"></div>
+  </main>
+
+  <script src="/app.js"></script>
+  <script>
+    const intentEl = document.getElementById("intent");
+    const langEl = document.getElementById("lang");
+    const statusEl = document.getElementById("status");
+    const resultEl = document.getElementById("result");
+    const composeBtn = document.getElementById("compose");
+
+    langEl.value = SameepyamLang.get();
+    langEl.addEventListener("change", () => SameepyamLang.set(langEl.value));
+
+    SameepyamVoice.attach(document.getElementById("mic"), intentEl, document.getElementById("voiceStatus"));
+
+    composeBtn.addEventListener("click", async () => {
+      Sameepyam.hide(resultEl);
+      const intent = intentEl.value.trim();
+      if (!intent) {
+        Sameepyam.renderError(resultEl, "Please tell us what you'd like to say first.");
+        return;
+      }
+      composeBtn.disabled = true;
+      statusEl.innerHTML = `<div class="loading"><span class="spinner"></span> Writing your message…</div>`;
+      Sameepyam.show(statusEl);
+      try {
+        const out = await Sameepyam.postJson("/api/compose", { intent, language: langEl.value });
+        Sameepyam.hide(statusEl);
+        resultEl.innerHTML =
+          `<div class="card"><div class="field"><div class="field-label">Your message</div>` +
+          `<div class="field-value">${Sameepyam.escapeHtml(out.message)}</div></div></div>`;
+        Sameepyam.show(resultEl);
+      } catch {
+        Sameepyam.hide(statusEl);
+        Sameepyam.renderError(resultEl, "Please try writing the message again in a moment.");
+      } finally {
+        composeBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
