@@ -1,6 +1,6 @@
 # Sameepyam
 
-> *nearness, closeness, presence* — సమీపం / சமீபம் / സാമീപ്യം
+> *nearness, closeness, presence* — ಸಾಮೀಪ್ಯಂ / సామీప్యం / சாமீப்யம் / സാമീപ്യം
 
 A Spring Boot + Spring AI web app that helps elderly, non-native-English speakers do everyday
 digital tasks confidently — without having to ask their children for help every time.
