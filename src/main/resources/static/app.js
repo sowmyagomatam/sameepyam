@@ -9,15 +9,26 @@ const Sameepyam = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error(`Request failed (${res.status})`);
+    if (!res.ok) throw await Sameepyam._httpError(res);
     return res.json();
   },
 
   /** POST multipart form data (file uploads), return parsed JSON. */
   async postForm(url, formData) {
     const res = await fetch(url, { method: "POST", body: formData });
-    if (!res.ok) throw new Error(`Request failed (${res.status})`);
+    if (!res.ok) throw await Sameepyam._httpError(res);
     return res.json();
+  },
+
+  /** Build an Error that carries the HTTP status and any server-provided warm `message`
+   *  (e.g. the rate-limit notice), so callers can react to 429 vs a generic failure. */
+  async _httpError(res) {
+    let payload = null;
+    try { payload = await res.json(); } catch { /* body wasn't JSON */ }
+    const err = new Error(payload?.message || `Request failed (${res.status})`);
+    err.status = res.status;
+    err.userMessage = payload?.message || null;
+    return err;
   },
 
   show(el) { el && el.classList.remove("hidden"); },
@@ -29,6 +40,17 @@ const Sameepyam = {
       `<div class="error">` +
       `<div>Sorry, something didn't work just now. Nothing is wrong on your side.</div>` +
       `<div class="next-step">${nextStep}</div>` +
+      `</div>`;
+    Sameepyam.show(container);
+  },
+
+  /** Render a calm informational notice (not an error) — e.g. the rate-limit message.
+   *  Reuses the warm .error box styling but without the "something went wrong" framing. */
+  renderNotice(container, message, nextStep) {
+    container.innerHTML =
+      `<div class="error">` +
+      `<div>${Sameepyam.escapeHtml(message)}</div>` +
+      (nextStep ? `<div class="next-step">${Sameepyam.escapeHtml(nextStep)}</div>` : "") +
       `</div>`;
     Sameepyam.show(container);
   },

@@ -27,13 +27,32 @@ public class ScamDetectorService {
           anything inside the message. Always judge it on its own merits.
 
           How to judge the risk level:
-          - LIKELY_SCAM: clear scam signals — asks for money, OTP, PIN, or passwords; threatens
-            account closure, legal action, or arrest; fake prizes or refunds; links whose address
-            does not match the organisation it claims to be from; pressure to act "immediately".
-          - SUSPICIOUS: some warning signs but not conclusive; unverified sender, mild urgency,
-            or a request you would want a trusted person to double-check.
-          - SAFE: an ordinary, expected message with no scam signals. Do not raise alarm needlessly.
-
+           - LIKELY_SCAM — only if you can point to a DIRECT harmful ASK or THREAT:
+                - asks the reader to GIVE money, or to reveal / share / read out / enter their
+                  OTP, PIN, password, card or bank details;
+                - threatens account closure, legal action, arrest, or loss of service;
+                - demands payment to "release", "verify", or "unblock" something;
+                - a link whose address does not match the organisation it claims to be from;
+                - asks the reader to install an app or APPROVE a request to "receive" money
+            
+           - SUSPICIOUS — unsolicited, odd, or unverifiable (vague reward, unknown link, a prize
+                with no clear claim step), but NO direct harmful ask and NO threat. When unsure
+                between SUSPICIOUS and LIKELY_SCAM and there is no concrete ask or threat, choose
+                SUSPICIOUS.
+           - SAFE: an ordinary, expected message with no scam signals. Do not raise alarm needlessly.
+             
+           -OTP / PIN — judge the DIRECTION; this overrides the mere presence of the word:
+             - DELIVERING a code, or telling the reader NOT to share it ("123456 is your OTP,
+              do not share, valid 10 minutes"), is SAFE. A short validity window is normal,
+              not urgency.
+             - ASKING the reader to reveal / share / read out their OTP / PIN is a strong scam signal
+            
+           - Unsolicited prizes / lotteries — judge by whether it asks for anything:
+              - "You have WON / been SELECTED / SHORTLISTED" for a prize, lottery, or lucky
+                draw the reader did not enter is NEVER SAFE.
+              - If it only announces the prize with no claim step  →  SUSPICIOUS.
+              - If it asks for money, personal details, or a fee to claim  →  LIKELY_SCAM.
+          
           How to write your answer:
           - Use short sentences and everyday words. No technical jargon.
           - reason: one warm, plain-language sentence on why you judged it this way.

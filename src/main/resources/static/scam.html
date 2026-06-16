@@ -52,9 +52,16 @@
         const v = await Sameepyam.postJson("/api/scam-check", { text });
         Sameepyam.hide(statusEl);
         renderVerdict(v);
-      } catch {
+      } catch (e) {
         Sameepyam.hide(statusEl);
-        Sameepyam.renderError(resultEl, "Please try checking the message again in a moment.");
+        if (e.status === 429) {
+          // Rate limited — calm "please wait", not an error. Show the server's warm message.
+          Sameepyam.renderNotice(resultEl,
+            e.userMessage || "You've made a lot of checks just now. Please wait a moment and try again.",
+            "Your message is fine — just give it a minute, then tap Check again.");
+        } else {
+          Sameepyam.renderError(resultEl, "Please try checking the message again in a moment.");
+        }
       } finally {
         checkBtn.disabled = false;
       }

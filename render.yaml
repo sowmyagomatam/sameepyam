@@ -1,0 +1,16 @@
+# Render Blueprint — defines the Sameepyam web service as code.
+# Render builds the Dockerfile from the connected GitHub repo on each push to the branch.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: sameepyam
+    runtime: docker
+    # 'free' = $0 but sleeps after ~15 min idle (cold start ~30-60s on next hit).
+    # Switch to 'starter' (~$7/mo) for an always-warm permanent portfolio link.
+    plan: free
+    # Static home page — a free liveness target, so health checks never trigger a paid LLM call.
+    healthCheckPath: /
+    envVars:
+      # sync:false => NOT stored in the repo; you set the value in the Render dashboard.
+      - key: OPENAI_API_KEY
+        sync: false

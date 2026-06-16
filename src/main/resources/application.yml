@@ -9,6 +9,9 @@ spring:
         options:
           model: gpt-4o-mini
           temperature: 0.2
+          # Cap worst-case output tokens per call so a single request can't run up cost.
+          # A ScamVerdict (reason + a few red flags + next step) fits comfortably under this.
+          max-tokens: 1000
       audio:
         transcription:
           options:
@@ -20,4 +23,5 @@ spring:
       max-request-size: 10MB
 
 server:
-  port: 8080
+  # Hosts (Railway/Render/Fly) inject the port to bind via $PORT; fall back to 8080 locally.
+  port: ${PORT:8080}
